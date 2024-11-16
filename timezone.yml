@@ -1,0 +1,9 @@
+---
+- name: Setup RockyLinux timezone
+  hosts: RockyLinux
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: set timezone to Asia/Seoul
+      timezone: name=Asia/Seoul

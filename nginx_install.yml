@@ -1,0 +1,33 @@
+---
+- name: Install nginx on RockyLinux
+  hosts: RockyLinux
+  gather_facts: no
+  become: true
+  collections:
+    - ansible.posix
+
+  tasks:
+
+    - name: install epel-release
+      yum: name=epel-release state=latest
+    - name: install nginx web server
+      yum: name=nginx state=present
+    - name: upload default index.html for web server
+      get_url: url=https://www.nginx.com dest=/usr/share/nginx/html/ mode=0644
+    - name: start nginx web server
+      service: name=nginx state=started
+
+    - name: Ensure firewalld is running and enabled at boot
+      systemd:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Allow HTTP port through firewall
+      firewalld:
+        port: 80/tcp
+        permanent: true
+        state: enabled
+
+    - name: Reload firewalld to apply changes
+      command: firewall-cmd --reload

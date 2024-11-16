@@ -1,0 +1,42 @@
+---
+- name: Disable SELinux and firewalld
+  hosts: all
+  become: true
+  gather_facts: yes
+
+  tasks:
+    - name: Disable SELinux
+      command: setenforce 0
+
+    - name: Permanently disable SELinux in configuration file
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+    - name: Stop and disable firewalld service
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+- name: Disable SELinux and firewalld
+  hosts: localhost
+  become: true
+  gather_facts: yes
+
+  tasks:
+    - name: Disable SELinux
+      command: setenforce 0
+
+    - name: Permanently disable SELinux in configuration file
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+    - name: Stop and disable firewalld service
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no
