@@ -1,0 +1,63 @@
+---
+- name: Setup for nfs server
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Install nfs utils
+      become: true
+      yum:
+        name: nfs-utils
+        state: present
+
+    - name: make nfs_shared directory
+      file:
+        path: /home/vagrant/nfs_shared
+        state: directory
+        mode: 0777
+
+    - name: configure /etc/exports
+      become: true
+      lineinfile:
+        path: /etc/exports
+        line: /home/vagrant/nfs_shared 192.168.0.0/24(rw,sync)
+
+    - name: nfs service restart
+      become: true
+      service:
+        name: nfs-server
+        state: restarted
+
+- name: Setup for nfs clients
+  hosts: RockyLinux, Ubuntu
+  gather_facts: yes
+
+  tasks:
+    - name: make nfs_client directory
+      file:
+        path: /home/vagrant/nfs
+        state: directory
+
+    - name: Install nfs utils on RockyLinux
+      become: true
+      yum:
+        name: nfs-utils
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install nfs utils on Ubuntu
+      become: true
+      apt:
+        name: nfs-common
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: mount point directory as client
+      become: true
+      mount:
+        path: /home/vagrant/nfs
+        src: "192.168.0.10:/home/vagrant/nfs_shared"
+        fstype: nfs
+        opts: nfsvers=3
+        state: mounted

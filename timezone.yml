@@ -1,9 +1,10 @@
 ---
 - name: Setup RockyLinux timezone
-  hosts: RockyLinux
+  hosts: RockyLinux, Ubuntu
   gather_facts: no
-  become: yes
+  become: true
 
   tasks:
-    - name: set timezone to Asia/Seoul
-      timezone: name=Asia/Seoul
+    - name: Set timezone to Asia/Seoul
+      command: timedatectl set-timezone Asia/Seoul
+
